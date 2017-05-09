@@ -549,6 +549,16 @@ type AcceleratorStats struct {
 	DecoderUtilization uint64 `json:"decoder_utilization"`
 }
 
+// per device GpuStats
+type GpuStats struct {
+	// key is gpu device id
+	SMUtils  map[string]string `json:"sm_utils"`
+	MemUtils map[string]string `json:"mem_utils"`
+	EncUtils map[string]string `json:"enc_utils"`
+	DecUtils map[string]string `json:"dec_utils"`
+	FBSize   map[string]string `json:"fb_size"`
+}
+
 type ContainerStats struct {
 	// The time of this stat point.
 	Timestamp time.Time    `json:"timestamp"`
@@ -565,6 +575,9 @@ type ContainerStats struct {
 
 	// Metrics for Accelerators. Each Accelerator corresponds to one element in the array.
 	Accelerators []AcceleratorStats `json:"accelerators,omitempty"`
+
+	// GPU statistics, key is device
+	GPU GpuStats `json:"gpu,omitempty"`
 
 	// Custom metrics from all collectors
 	CustomMetrics map[string][]MetricVal `json:"custom_metrics,omitempty"`
