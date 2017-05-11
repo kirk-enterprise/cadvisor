@@ -146,8 +146,6 @@ type ContainerStats struct {
 	Filesystem *FilesystemStats `json:"filesystem,omitempty"`
 	// Task load statistics
 	Load *v1.LoadStats `json:"load_stats,omitempty"`
-	// GPU statistics
-	GPU *GpuStats `json:"gpu,omitempty"`
 	// Custom Metrics
 	CustomMetrics map[string][]v1.MetricVal `json:"custom_metrics,omitempty"`
 }
@@ -280,12 +278,6 @@ type NetworkStats struct {
 // Instantaneous CPU stats
 type CpuInstStats struct {
 	Usage CpuInstUsage `json:"usage"`
-}
-
-type GpuStats struct {
-	SMUtils  string `json:"sm_utils"`
-	MemUtils string `json:"mem_utils"`
-	FBSize   string `json:"fb_size"`
 }
 
 // CPU usage time statistics.

@@ -186,6 +186,10 @@ func (handler *rktContainerHandler) Start() {
 	handler.fsHandler.Start()
 }
 
+func (self *rktContainerHandler) GetPID() int{
+	return self.pid
+}
+
 func (handler *rktContainerHandler) Cleanup() {
 	handler.fsHandler.Stop()
 }
