@@ -74,4 +74,6 @@ type ContainerHandler interface {
 
 	// Type of handler
 	Type() ContainerType
+
+	GetPID() int
 }
