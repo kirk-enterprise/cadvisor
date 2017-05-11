@@ -363,6 +363,10 @@ func (self *dockerContainerHandler) Cleanup() {
 	}
 }
 
+func (self *dockerContainerHandler) GetPID() int{
+	return self.pid
+}
+
 func (self *dockerContainerHandler) ContainerReference() (info.ContainerReference, error) {
 	return info.ContainerReference{
 		Id:        self.id,
