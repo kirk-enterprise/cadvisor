@@ -536,21 +536,26 @@ func (c *containerData) updateStats() error {
 				continue
 			}
 
+			gpuStats := info.GpuStats{
+				SMUtils: make(map[string]string),
+				MemUtils: make(map[string]string),
+				FBSize: make(map[string]string),
+			}
+
 			for k, v := range fbSize {
-				t := stats.GPU[k]
-				t.FBSize+=v
+				gpuStats.FBSize[k]+=v
 			}
 
 			gpuUtil := c.gpuMonitor.GetGPUUtil(strconv.Itoa(pid))
 
 			if gpuUtil !=nil {
 				for k,v := range gpuUtil{
-					t := stats.GPU[k]
-					t.SMUtils+=v[0]
-					t.MemUtils+=v[1]
+					gpuStats.SMUtils[k]+=v[0]
+					gpuStats.MemUtils[k]+=v[1]
 				}
 			}
 
+			stats.GPU = gpuStats
 		}	
 
 	}

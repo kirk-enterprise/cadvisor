@@ -23,6 +23,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"strconv"
 )
 
 // infoProvider will usually be manager.Manager, but can be swapped out for testing.
@@ -80,6 +81,20 @@ func ioValues(ioStats []info.PerDiskStats, ioType string, ioValueFn func(uint64)
 			labels: []string{stat.Device},
 		})
 	}
+	return values
+}
+
+func gpuValues(mm map[string]string) metricValues{
+	values := make(metricValues,0,len(mm))
+
+	for k, v := range mm {
+		i, _ := strconv.ParseFloat(v,64)
+		values = append(values, metricValue{
+			value: i,
+			labels: []string{k},
+		})
+	}
+
 	return values
 }
 
@@ -693,6 +708,33 @@ func NewPrometheusCollector(i infoProvider, f ContainerLabelsFunc) *PrometheusCo
 					}
 				},
 			},
+			{
+				name:        "container_gpu_sm_util",
+				help:        "container gpu sm utilitization",
+				valueType:   prometheus.GaugeValue,
+				extraLabels: []string{"device"},
+				getValues: func(s *info.ContainerStats) metricValues {
+					return gpuValues(s.GPU.SMUtils)
+				},
+			},
+			{
+				name:        "container_gpu_mem_util",
+				help:        "container gpu mem utilitization",
+				valueType:   prometheus.GaugeValue,
+				extraLabels: []string{"device"},
+				getValues: func(s *info.ContainerStats) metricValues {
+					return gpuValues(s.GPU.MemUtils)
+				},
+			},
+			{
+				name:        "container_gpu_fb_size_mb",
+				help:        "container gpu fb size usage",
+				valueType:   prometheus.GaugeValue,
+				extraLabels: []string{"device"},
+				getValues: func(s *info.ContainerStats) metricValues {
+					return gpuValues(s.GPU.FBSize)
+				},
+			},
 		},
 	}
 
@@ -807,11 +849,13 @@ func (c *PrometheusCollector) collectContainersInfo(ch chan<- prometheus.Metric)
 		// Now for the actual metrics
 		stats := container.Stats[0]
 		for _, cm := range c.containerMetrics {
+			
 			if cm.condition != nil && !cm.condition(container.Spec) {
 				continue
 			}
 			desc := cm.desc(labels)
 			for _, metricValue := range cm.getValues(stats) {
+				
 				ch <- prometheus.MustNewConstMetric(desc, cm.valueType, float64(metricValue.value), append(values, metricValue.labels...)...)
 			}
 		}
