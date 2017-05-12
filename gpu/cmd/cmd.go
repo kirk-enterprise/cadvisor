@@ -92,17 +92,19 @@ func (self *CMDGPUMonitor) setGPUUtils() (error) {
 
 		utilmap, ok := self.GPUUtils[vals[1]]
 
-		if ok {
-			// this pid is already exist in the previous query
-			utilmap[vals[0]][0]=vals[3]
-			utilmap[vals[0]][1]=vals[4]
-		}else{
-			// new process
+		if !ok {
+			// new process emerge
 			self.GPUUtils[vals[1]] = make(map[string][]string)
 			utilmap, _ = self.GPUUtils[vals[1]]
-			utilmap[vals[0]] = append(utilmap[vals[0]], vals[3])
-		    utilmap[vals[0]] = append(utilmap[vals[0]], vals[4])
-		}	
+		}
+
+		if len(utilmap[vals[0]]) == 0 {
+			// new device util metric
+			utilmap[vals[0]] = make([]string,2,2)
+			
+		}
+		utilmap[vals[0]][0]=vals[3]
+	    utilmap[vals[0]][1]=vals[4]
 		
 	}
 
@@ -173,12 +175,12 @@ func (self *CMDGPUMonitor) setGPUFBSize() error {
 
 		fbmap, ok := self.GPUFBSize[vals[1]]
 
-		if ok{
-			// this pid is existed in the previous query
-		}else{
+		if !ok{
+			// a new process emerge
 			self.GPUFBSize[vals[1]] = make(map[string]string)
 			fbmap, _ = self.GPUFBSize[vals[1]]
 		}
+
 		fbmap[vals[0]]=vals[3]
 	}
 
