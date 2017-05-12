@@ -518,9 +518,10 @@ type FsStats struct {
 
 // per device GpuStats
 type GpuStats struct {
-	SMUtils  string `json:"sm_utils"`
-	MemUtils string `json:"mem_utils"`
-	FBSize   string `json:"fb_size"`
+	// key is gpu device id
+ 	SMUtils  map[string]string `json:"sm_utils"`
+	MemUtils map[string]string `json:"mem_utils"`
+	FBSize   map[string]string `json:"fb_size"`
 }
 
 type ContainerStats struct {
@@ -538,7 +539,7 @@ type ContainerStats struct {
 	TaskStats LoadStats `json:"task_stats,omitempty"`
 
 	// GPU statistics, key is device
-	GPU map[string]GpuStats `json:"gpu,omitempty"`
+	GPU GpuStats `json:"gpu,omitempty"`
 
 	// Custom metrics from all collectors
 	CustomMetrics map[string][]MetricVal `json:"custom_metrics,omitempty"`
