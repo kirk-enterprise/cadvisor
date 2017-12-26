@@ -29,8 +29,8 @@ import (
 type CMDGPUMonitor struct {
 	utillock   sync.RWMutex
 	fbSizelock sync.RWMutex
-	// GPUUtils first key is pid, second key is device id, value is two-elemet util slice, first element is sm util
-	// second element is mem util
+	// GPUUtils first key is pid, second key is device id, value is four-elemet util slice, first element is sm util
+	// second element is mem util, third element is enc util, fourth element is dec util.
 	GPUUtils map[string]map[string][]string
 	// GPUFBSize first key is pid, second key is device id, value is fb size(unit is MB)
 	GPUFBSize map[string]map[string]string
@@ -53,7 +53,7 @@ func (self *CMDGPUMonitor) isCmdExist() bool {
 	return true
 }
 
-// SetGPUUtils runs nvidia-smi command and set per pid sm util and mem util
+// SetGPUUtils runs nvidia-smi command and set per pid sm/mem/enc/dec utilizations
 func (self *CMDGPUMonitor) setGPUUtils() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 
@@ -115,11 +115,13 @@ func (self *CMDGPUMonitor) setGPUUtils() error {
 
 		if len(utilmap[vals[0]]) == 0 {
 			// new device util metric
-			utilmap[vals[0]] = make([]string, 2, 2)
+			utilmap[vals[0]] = make([]string, 4, 4)
 
 		}
 		utilmap[vals[0]][0] = vals[3]
 		utilmap[vals[0]][1] = vals[4]
+		utilmap[vals[0]][2] = vals[5]
+		utilmap[vals[0]][3] = vals[6]
 
 	}
 

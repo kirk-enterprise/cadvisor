@@ -727,6 +727,24 @@ func NewPrometheusCollector(i infoProvider, f ContainerLabelsFunc) *PrometheusCo
 				},
 			},
 			{
+				name:        "container_gpu_enc_util",
+				help:        "container gpu enc utilitization",
+				valueType:   prometheus.GaugeValue,
+				extraLabels: []string{"device"},
+				getValues: func(s *info.ContainerStats) metricValues {
+					return gpuValues(s.GPU.EncUtils)
+				},
+			},
+			{
+				name:        "container_gpu_dec_util",
+				help:        "container gpu dec utilitization",
+				valueType:   prometheus.GaugeValue,
+				extraLabels: []string{"device"},
+				getValues: func(s *info.ContainerStats) metricValues {
+					return gpuValues(s.GPU.DecUtils)
+				},
+			},
+			{
 				name:        "container_gpu_fb_size_mb",
 				help:        "container gpu fb size usage",
 				valueType:   prometheus.GaugeValue,

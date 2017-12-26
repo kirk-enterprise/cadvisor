@@ -521,6 +521,8 @@ type GpuStats struct {
 	// key is gpu device id
 	SMUtils  map[string]string `json:"sm_utils"`
 	MemUtils map[string]string `json:"mem_utils"`
+	EncUtils map[string]string `json:"enc_utils"`
+	DecUtils map[string]string `json:"dec_utils"`
 	FBSize   map[string]string `json:"fb_size"`
 }
 
