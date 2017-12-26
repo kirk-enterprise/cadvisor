@@ -519,7 +519,7 @@ type FsStats struct {
 // per device GpuStats
 type GpuStats struct {
 	// key is gpu device id
- 	SMUtils  map[string]string `json:"sm_utils"`
+	SMUtils  map[string]string `json:"sm_utils"`
 	MemUtils map[string]string `json:"mem_utils"`
 	FBSize   map[string]string `json:"fb_size"`
 }
