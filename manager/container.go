@@ -537,6 +537,8 @@ func (c *containerData) updateStats() error {
 			gpuStats := info.GpuStats{
 				SMUtils:  make(map[string]string),
 				MemUtils: make(map[string]string),
+				EncUtils: make(map[string]string),
+				DecUtils: make(map[string]string),
 				FBSize:   make(map[string]string),
 			}
 
@@ -550,6 +552,8 @@ func (c *containerData) updateStats() error {
 				for k, v := range gpuUtil {
 					gpuStats.SMUtils[k] += v[0]
 					gpuStats.MemUtils[k] += v[1]
+					gpuStats.EncUtils[k] += v[2]
+					gpuStats.DecUtils[k] += v[3]
 				}
 			}
 
