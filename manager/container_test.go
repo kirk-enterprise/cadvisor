@@ -26,6 +26,7 @@ import (
 	"github.com/google/cadvisor/collector"
 	"github.com/google/cadvisor/container"
 	containertest "github.com/google/cadvisor/container/testing"
+	gpufake "github.com/google/cadvisor/gpu/fake"
 	info "github.com/google/cadvisor/info/v1"
 	itest "github.com/google/cadvisor/info/v1/test"
 
@@ -43,7 +44,7 @@ func setupContainerData(t *testing.T, spec info.ContainerSpec) (*containerData, 
 		nil,
 	)
 	memoryCache := memory.New(60, nil)
-	ret, err := newContainerData(containerName, memoryCache, mockHandler, false, &collector.GenericCollectorManager{}, 60*time.Second, true)
+	ret, err := newContainerData(containerName, memoryCache, mockHandler, false, &collector.GenericCollectorManager{}, 60*time.Second, true, gpufake.NewFakeGPuMonitor())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,6 +133,13 @@ func TestUpdateStats(t *testing.T) {
 	cd, mockHandler, memoryCache := newTestContainerData(t)
 	mockHandler.On("GetStats").Return(
 		stats,
+		nil,
+	)
+	mockHandler.On("Type").Return(
+		container.ContainerTypeDocker,
+	)
+	mockHandler.On("ListProcesses", 1).Return(
+		[]int{},
 		nil,
 	)
 
