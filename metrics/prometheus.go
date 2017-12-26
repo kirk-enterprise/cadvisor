@@ -17,13 +17,13 @@ package metrics
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"time"
 
 	info "github.com/google/cadvisor/info/v1"
 
 	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
-	"strconv"
 )
 
 // infoProvider will usually be manager.Manager, but can be swapped out for testing.
@@ -84,13 +84,13 @@ func ioValues(ioStats []info.PerDiskStats, ioType string, ioValueFn func(uint64)
 	return values
 }
 
-func gpuValues(mm map[string]string) metricValues{
-	values := make(metricValues,0,len(mm))
+func gpuValues(mm map[string]string) metricValues {
+	values := make(metricValues, 0, len(mm))
 
 	for k, v := range mm {
-		i, _ := strconv.ParseFloat(v,64)
+		i, _ := strconv.ParseFloat(v, 64)
 		values = append(values, metricValue{
-			value: i,
+			value:  i,
 			labels: []string{k},
 		})
 	}
@@ -755,13 +755,11 @@ func (c *PrometheusCollector) collectContainersInfo(ch chan<- prometheus.Metric)
 		// Now for the actual metrics
 		stats := container.Stats[0]
 		for _, cm := range c.containerMetrics {
-			
 			if cm.condition != nil && !cm.condition(container.Spec) {
 				continue
 			}
 			desc := cm.desc(labels)
 			for _, metricValue := range cm.getValues(stats) {
-				
 				ch <- prometheus.MustNewConstMetric(desc, cm.valueType, float64(metricValue.value), append(values, metricValue.labels...)...)
 			}
 		}

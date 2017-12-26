@@ -124,11 +124,6 @@ func (self *rawContainerHandler) GetRootNetworkDevices() ([]info.NetInfo, error)
 // Nothing to start up.
 func (self *rawContainerHandler) Start() {}
 
-// Nothing to GetPID.
-func (self *rawContainerHandler) GetPID() int {
-	return self.pid
-}
-
 // Nothing to clean up.
 func (self *rawContainerHandler) Cleanup() {}
 
