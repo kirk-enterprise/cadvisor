@@ -543,10 +543,10 @@ type AcceleratorStats struct {
 	DutyCycle uint64 `json:"duty_cycle"`
 
 	// Utilization of encoder
-	EncoderUtilization uint64 `json:encoder_utilization`
+	EncoderUtilization uint64 `json:"encoder_utilization"`
 
 	// Utilization of decoder
-	DecoderUtilization uint64 `json:decoder_utilization`
+	DecoderUtilization uint64 `json:"decoder_utilization"`
 }
 
 type ContainerStats struct {
