@@ -17,6 +17,7 @@ package metrics
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"time"
 
 	info "github.com/google/cadvisor/info/v1"
@@ -80,6 +81,20 @@ func ioValues(ioStats []info.PerDiskStats, ioType string, ioValueFn func(uint64)
 			labels: []string{stat.Device},
 		})
 	}
+	return values
+}
+
+func gpuValues(mm map[string]string) metricValues {
+	values := make(metricValues, 0, len(mm))
+
+	for k, v := range mm {
+		i, _ := strconv.ParseFloat(v, 64)
+		values = append(values, metricValue{
+			value:  i,
+			labels: []string{k},
+		})
+	}
+
 	return values
 }
 
@@ -777,6 +792,54 @@ func NewPrometheusCollector(i infoProvider, f ContainerLabelsFunc) *PrometheusCo
 			},
 		},
 	}
+
+	c.containerMetrics = append(c.containerMetrics, []containerMetric{
+		{
+			name:        "container_gpu_sm_util",
+			help:        "container gpu sm utilitization",
+			valueType:   prometheus.GaugeValue,
+			extraLabels: []string{"device"},
+			getValues: func(s *info.ContainerStats) metricValues {
+				return gpuValues(s.GPU.SMUtils)
+			},
+		},
+		{
+			name:        "container_gpu_mem_util",
+			help:        "container gpu mem utilitization",
+			valueType:   prometheus.GaugeValue,
+			extraLabels: []string{"device"},
+			getValues: func(s *info.ContainerStats) metricValues {
+				return gpuValues(s.GPU.MemUtils)
+			},
+		},
+		{
+			name:        "container_gpu_enc_util",
+			help:        "container gpu enc utilitization",
+			valueType:   prometheus.GaugeValue,
+			extraLabels: []string{"device"},
+			getValues: func(s *info.ContainerStats) metricValues {
+				return gpuValues(s.GPU.EncUtils)
+			},
+		},
+		{
+			name:        "container_gpu_dec_util",
+			help:        "container gpu dec utilitization",
+			valueType:   prometheus.GaugeValue,
+			extraLabels: []string{"device"},
+			getValues: func(s *info.ContainerStats) metricValues {
+				return gpuValues(s.GPU.DecUtils)
+			},
+		},
+		{
+			name:        "container_gpu_fb_size_mb",
+			help:        "container gpu fb size usage",
+			valueType:   prometheus.GaugeValue,
+			extraLabels: []string{"device"},
+			getValues: func(s *info.ContainerStats) metricValues {
+				return gpuValues(s.GPU.FBSize)
+			},
+		},
+	}...)
 
 	return c
 }

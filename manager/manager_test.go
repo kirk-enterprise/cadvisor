@@ -30,6 +30,7 @@ import (
 	"github.com/google/cadvisor/container"
 	"github.com/google/cadvisor/container/docker"
 	containertest "github.com/google/cadvisor/container/testing"
+	gpufake "github.com/google/cadvisor/gpu/fake"
 	info "github.com/google/cadvisor/info/v1"
 	itest "github.com/google/cadvisor/info/v1/test"
 	"github.com/google/cadvisor/info/v2"
@@ -53,6 +54,7 @@ func createManagerAndAddContainers(
 		containers:   make(map[namespacedContainerName]*containerData),
 		quitChannels: make([]chan error, 0, 2),
 		memoryCache:  memoryCache,
+		GPUMonitor:   gpufake.NewFakeGPuMonitor(),
 	}
 	for _, name := range containers {
 		mockHandler := containertest.NewMockContainerHandler(name)
@@ -61,7 +63,7 @@ func createManagerAndAddContainers(
 			spec,
 			nil,
 		).Once()
-		cont, err := newContainerData(name, memoryCache, mockHandler, false, &collector.GenericCollectorManager{}, 60*time.Second, true, clock.NewFakeClock(time.Now()))
+		cont, err := newContainerData(name, memoryCache, mockHandler, false, &collector.GenericCollectorManager{}, 60*time.Second, true, clock.NewFakeClock(time.Now()), mif.GPUMonitor)
 		if err != nil {
 			t.Fatal(err)
 		}
