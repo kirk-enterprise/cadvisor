@@ -27,6 +27,7 @@ import (
 	"github.com/google/cadvisor/collector"
 	"github.com/google/cadvisor/container"
 	containertest "github.com/google/cadvisor/container/testing"
+	gpufake "github.com/google/cadvisor/gpu/fake"
 	info "github.com/google/cadvisor/info/v1"
 	itest "github.com/google/cadvisor/info/v1/test"
 
@@ -51,7 +52,7 @@ func setupContainerData(t *testing.T, spec info.ContainerSpec) (*containerData, 
 	)
 	memoryCache := memory.New(60, nil)
 	fakeClock := clock.NewFakeClock(time.Now())
-	ret, err := newContainerData(containerName, memoryCache, mockHandler, false, &collector.GenericCollectorManager{}, 60*time.Second, true, fakeClock)
+	ret, err := newContainerData(containerName, memoryCache, mockHandler, false, &collector.GenericCollectorManager{}, 60*time.Second, true, fakeClock, gpufake.NewFakeGPuMonitor())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,6 +139,13 @@ func TestUpdateStats(t *testing.T) {
 	cd, mockHandler, memoryCache, _ := newTestContainerData(t)
 	mockHandler.On("GetStats").Return(
 		stats,
+		nil,
+	)
+	mockHandler.On("Type").Return(
+		container.ContainerTypeDocker,
+	)
+	mockHandler.On("ListProcesses", container.ListRecursive).Return(
+		[]int{},
 		nil,
 	)
 
@@ -239,6 +247,14 @@ func TestOnDemandHousekeeping(t *testing.T) {
 	mockHandler.On("GetStats").Return(stats, nil)
 	defer cd.Stop()
 
+	mockHandler.On("Type").Return(
+		container.ContainerTypeDocker,
+	)
+	mockHandler.On("ListProcesses", container.ListRecursive).Return(
+		[]int{},
+		nil,
+	)
+
 	// 0 seconds should always trigger an update
 	go cd.OnDemandHousekeeping(0 * time.Second)
 	cd.housekeepingTick(fakeClock.NewTimer(time.Minute).C(), testLongHousekeeping)
@@ -262,6 +278,14 @@ func TestConcurrentOnDemandHousekeeping(t *testing.T) {
 	cd, mockHandler, memoryCache, fakeClock := newTestContainerData(t)
 	mockHandler.On("GetStats").Return(stats, nil)
 	defer cd.Stop()
+
+	mockHandler.On("Type").Return(
+		container.ContainerTypeDocker,
+	)
+	mockHandler.On("ListProcesses", container.ListRecursive).Return(
+		[]int{},
+		nil,
+	)
 
 	numConcurrentCalls := 5
 	var waitForHousekeeping sync.WaitGroup
